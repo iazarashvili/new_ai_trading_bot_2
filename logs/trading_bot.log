@@ -1,0 +1,76 @@
+2026-03-10 23:38:29 | INFO     | __main__ | Initializing Trading Bot
+2026-03-10 23:38:29 | INFO     | __main__ | Starting Trading Bot
+2026-03-10 23:38:29 | INFO     | trading_system.connectors.mt5_connector | Connected – account 262427958, balance 1000.00 USD
+2026-03-10 23:38:29 | INFO     | __main__ | Account: balance=1000.00 equity=1000.00 leverage=2000
+2026-03-10 23:38:29 | INFO     | trading_system.core.scheduler | Scheduler started – interval 5.0s
+2026-03-10 23:38:29 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for BTCUSD M5
+2026-03-10 23:38:29 | WARNING  | trading_system.core.engine | No data for BTCUSD M5
+2026-03-10 23:38:29 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for EURUSD M5
+2026-03-10 23:38:29 | WARNING  | trading_system.core.engine | No data for EURUSD M5
+2026-03-10 23:38:29 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for GBPUSD M5
+2026-03-10 23:38:29 | WARNING  | trading_system.core.engine | No data for GBPUSD M5
+2026-03-10 23:38:34 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for BTCUSD M5
+2026-03-10 23:38:34 | WARNING  | trading_system.core.engine | No data for BTCUSD M5
+2026-03-10 23:38:34 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for EURUSD M5
+2026-03-10 23:38:34 | WARNING  | trading_system.core.engine | No data for EURUSD M5
+2026-03-10 23:38:34 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for GBPUSD M5
+2026-03-10 23:38:34 | WARNING  | trading_system.core.engine | No data for GBPUSD M5
+2026-03-10 23:38:39 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for BTCUSD M5
+2026-03-10 23:38:39 | WARNING  | trading_system.core.engine | No data for BTCUSD M5
+2026-03-10 23:38:39 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for EURUSD M5
+2026-03-10 23:38:39 | WARNING  | trading_system.core.engine | No data for EURUSD M5
+2026-03-10 23:38:39 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for GBPUSD M5
+2026-03-10 23:38:39 | WARNING  | trading_system.core.engine | No data for GBPUSD M5
+2026-03-10 23:38:44 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for BTCUSD M5
+2026-03-10 23:38:44 | WARNING  | trading_system.core.engine | No data for BTCUSD M5
+2026-03-10 23:38:44 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for EURUSD M5
+2026-03-10 23:38:44 | WARNING  | trading_system.core.engine | No data for EURUSD M5
+2026-03-10 23:38:44 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for GBPUSD M5
+2026-03-10 23:38:44 | WARNING  | trading_system.core.engine | No data for GBPUSD M5
+2026-03-10 23:38:49 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for BTCUSD M5
+2026-03-10 23:38:49 | WARNING  | trading_system.core.engine | No data for BTCUSD M5
+2026-03-10 23:38:49 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for EURUSD M5
+2026-03-10 23:38:49 | WARNING  | trading_system.core.engine | No data for EURUSD M5
+2026-03-10 23:38:49 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for GBPUSD M5
+2026-03-10 23:38:49 | WARNING  | trading_system.core.engine | No data for GBPUSD M5
+2026-03-10 23:38:54 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for BTCUSD M5
+2026-03-10 23:38:54 | WARNING  | trading_system.core.engine | No data for BTCUSD M5
+2026-03-10 23:38:54 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for EURUSD M5
+2026-03-10 23:38:54 | WARNING  | trading_system.core.engine | No data for EURUSD M5
+2026-03-10 23:38:54 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for GBPUSD M5
+2026-03-10 23:38:54 | WARNING  | trading_system.core.engine | No data for GBPUSD M5
+2026-03-10 23:38:59 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for BTCUSD M5
+2026-03-10 23:38:59 | WARNING  | trading_system.core.engine | No data for BTCUSD M5
+2026-03-10 23:38:59 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for EURUSD M5
+2026-03-10 23:38:59 | WARNING  | trading_system.core.engine | No data for EURUSD M5
+2026-03-10 23:38:59 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for GBPUSD M5
+2026-03-10 23:38:59 | WARNING  | trading_system.core.engine | No data for GBPUSD M5
+2026-03-10 23:39:04 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for BTCUSD M5
+2026-03-10 23:39:04 | WARNING  | trading_system.core.engine | No data for BTCUSD M5
+2026-03-10 23:39:04 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for EURUSD M5
+2026-03-10 23:39:04 | WARNING  | trading_system.core.engine | No data for EURUSD M5
+2026-03-10 23:39:04 | WARNING  | trading_system.connectors.mt5_connector | No rates returned for GBPUSD M5
+2026-03-10 23:39:04 | WARNING  | trading_system.core.engine | No data for GBPUSD M5
+2026-03-10 23:39:08 | INFO     | __main__ | Received signal 2 – shutting down
+2026-03-10 23:39:08 | INFO     | __main__ | Shutting down Trading Bot
+2026-03-10 23:39:08 | INFO     | trading_system.core.scheduler | Scheduler stopped
+2026-03-10 23:39:08 | INFO     | trading_system.connectors.mt5_connector | MT5 disconnected
+2026-03-10 23:39:08 | INFO     | __main__ | Trading Bot stopped
+2026-03-10 23:39:08 | INFO     | __main__ | Shutting down Trading Bot
+2026-03-10 23:39:08 | INFO     | trading_system.core.scheduler | Scheduler stopped
+2026-03-10 23:39:08 | INFO     | trading_system.connectors.mt5_connector | MT5 disconnected
+2026-03-10 23:39:08 | INFO     | __main__ | Trading Bot stopped
+2026-03-10 23:41:12 | INFO     | __main__ | Initializing Trading Bot
+2026-03-10 23:41:12 | INFO     | __main__ | Starting Trading Bot
+2026-03-10 23:41:12 | INFO     | trading_system.connectors.mt5_connector | Connected – account 262427958, balance 1000.00 USD
+2026-03-10 23:41:12 | INFO     | __main__ | Account: balance=1000.00 equity=1000.00 leverage=2000
+2026-03-10 23:41:12 | INFO     | trading_system.core.scheduler | Scheduler started – interval 5.0s
+2026-03-10 23:41:23 | INFO     | __main__ | Received signal 2 – shutting down
+2026-03-10 23:41:23 | INFO     | __main__ | Shutting down Trading Bot
+2026-03-10 23:41:23 | INFO     | trading_system.core.scheduler | Scheduler stopped
+2026-03-10 23:41:23 | INFO     | trading_system.connectors.mt5_connector | MT5 disconnected
+2026-03-10 23:41:23 | INFO     | __main__ | Trading Bot stopped
+2026-03-10 23:41:23 | INFO     | __main__ | Shutting down Trading Bot
+2026-03-10 23:41:23 | INFO     | trading_system.core.scheduler | Scheduler stopped
+2026-03-10 23:41:23 | INFO     | trading_system.connectors.mt5_connector | MT5 disconnected
+2026-03-10 23:41:23 | INFO     | __main__ | Trading Bot stopped
