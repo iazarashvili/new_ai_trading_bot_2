@@ -47,7 +47,13 @@ class TradingBot:
         logger.info("Initializing Trading Bot")
 
         self.event_bus = EventBus()
-        self.connector = MT5Connector(magic=SETTINGS.magic_number)
+        self.connector = MT5Connector(
+            login=SETTINGS.mt5.login,
+            password=SETTINGS.mt5.password,
+            server=SETTINGS.mt5.server,
+            path=SETTINGS.mt5.path,
+            magic=SETTINGS.magic_number,
+        )
         self.telemetry = Telemetry()
 
         # Data

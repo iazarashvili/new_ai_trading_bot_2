@@ -45,7 +45,18 @@ class OrderResult:
 class MT5Connector:
     """Wrapper around the MetaTrader5 Python API."""
 
-    def __init__(self, magic: int = 234_000) -> None:
+    def __init__(
+        self,
+        login: Optional[int] = None,
+        password: Optional[str] = None,
+        server: Optional[str] = None,
+        path: Optional[str] = None,
+        magic: int = 234_000,
+    ) -> None:
+        self._login = login
+        self._password = password
+        self._server = server
+        self._path = path
         self._magic = magic
         self._connected = False
 
@@ -53,7 +64,17 @@ class MT5Connector:
     # Connection
     # ------------------------------------------------------------------
     def connect(self) -> bool:
-        if not mt5.initialize():
+        init_kwargs: Dict[str, Any] = {}
+        if self._path:
+            init_kwargs["path"] = self._path
+        if self._login:
+            init_kwargs["login"] = self._login
+        if self._password:
+            init_kwargs["password"] = self._password
+        if self._server:
+            init_kwargs["server"] = self._server
+
+        if not mt5.initialize(**init_kwargs):
             logger.error("MT5 initialize failed: %s", mt5.last_error())
             return False
         self._connected = True

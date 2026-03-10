@@ -1,7 +1,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List
+from typing import Optional
+
+
+@dataclass(frozen=True)
+class MT5Connection:
+    login: Optional[int] = None
+    password: Optional[str] = None
+    server: Optional[str] = None
+    path: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -29,6 +37,7 @@ class ExecutionConfig:
 
 @dataclass(frozen=True)
 class TradingSettings:
+    mt5: MT5Connection = field(default_factory=MT5Connection)
     symbols: tuple[str, ...] = ("BTCUSD", "EURUSD", "GBPUSD")
     timeframes: TimeframeConfig = field(default_factory=TimeframeConfig)
     data: DataConfig = field(default_factory=DataConfig)
@@ -37,4 +46,11 @@ class TradingSettings:
     loop_interval_seconds: float = 5.0
 
 
-SETTINGS = TradingSettings()
+SETTINGS = TradingSettings(
+    mt5=MT5Connection(
+        login=262427958,       # e.g. 12345678
+        password="Kaloria1@",    # e.g. "mypassword"
+        server="Exness-MT5Trial16",    # e.g. "MetaQuotes-Demo"
+        path=r"C:\Program Files\MetaTrader 5\terminal64.exe",    # e.g. r"C:\Program Files\MetaTrader 5\terminal64.exe"
+    ),
+)
