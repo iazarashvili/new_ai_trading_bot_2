@@ -16,8 +16,8 @@ class SymbolSpec:
 
 
 DEFAULT_SPECS: Dict[str, SymbolSpec] = {
-    "BTCUSD": SymbolSpec(
-        name="BTCUSD",
+    "BTCUSDm": SymbolSpec(
+        name="BTCUSDm",
         pip_value=1.0,
         min_lot=0.01,
         max_lot=10.0,
@@ -25,8 +25,8 @@ DEFAULT_SPECS: Dict[str, SymbolSpec] = {
         contract_size=1.0,
         digits=2,
     ),
-    "EURUSD": SymbolSpec(
-        name="EURUSD",
+    "EURUSDm": SymbolSpec(
+        name="EURUSDm",
         pip_value=0.0001,
         min_lot=0.01,
         max_lot=100.0,
@@ -34,8 +34,8 @@ DEFAULT_SPECS: Dict[str, SymbolSpec] = {
         contract_size=100_000.0,
         digits=5,
     ),
-    "GBPUSD": SymbolSpec(
-        name="GBPUSD",
+    "GBPUSDm": SymbolSpec(
+        name="GBPUSDm",
         pip_value=0.0001,
         min_lot=0.01,
         max_lot=100.0,

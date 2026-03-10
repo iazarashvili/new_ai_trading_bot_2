@@ -38,7 +38,7 @@ class ExecutionConfig:
 @dataclass(frozen=True)
 class TradingSettings:
     mt5: MT5Connection = field(default_factory=MT5Connection)
-    symbols: tuple[str, ...] = ("BTCUSD", "EURUSD", "GBPUSD")
+    symbols: tuple[str, ...] = ("BTCUSDm", "EURUSDm", "GBPUSDm")
     timeframes: TimeframeConfig = field(default_factory=TimeframeConfig)
     data: DataConfig = field(default_factory=DataConfig)
     execution: ExecutionConfig = field(default_factory=ExecutionConfig)
@@ -51,6 +51,6 @@ SETTINGS = TradingSettings(
         login=262427958,       # e.g. 12345678
         password="Kaloria1@",    # e.g. "mypassword"
         server="Exness-MT5Trial16",    # e.g. "MetaQuotes-Demo"
-        path=r"C:\Program Files\MetaTrader 5\terminal64.exe",    # e.g. r"C:\Program Files\MetaTrader 5\terminal64.exe"
+        path=r"C:\Program Files\MetaTrader 5 EXNESS\terminal64.exe",
     ),
 )
