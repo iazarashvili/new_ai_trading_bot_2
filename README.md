@@ -118,3 +118,49 @@ for w in result.windows:
 
 Edit `trading_system/config/settings.py` to change symbols, timeframes, and execution parameters.  
 Edit `trading_system/config/risk_limits.py` to adjust risk parameters.
+30 Python source files across 12 packages, following the exact project structure from the specification:
+
+Config — settings.py, symbols.py, risk_limits.py
+
+Frozen dataclass configs for symbols (BTCUSD, EURUSD, GBPUSD), timeframes (M5/H1/H4/D1), risk limits (1% per trade, 3% daily max, 6% weekly max, 1 open trade max)
+Core — event_bus.py, scheduler.py, engine.py
+
+Pub/sub EventBus with typed events (MARKET_DATA, SIGNAL, ORDER, TRADE, RISK)
+Interval-based Scheduler with fault-tolerant task execution
+TradingEngine that orchestrates the full cycle per symbol: data → features → signals → trade management
+Connectors — mt5_connector.py
+
+Full MT5 API wrapper: connection, candle fetch, order placement with retry logic + slippage protection, position modification, closing
+Data — market_data.py, candle_service.py, data_cache.py
+
+TTL-based in-memory cache, 1000-candle rolling windows, multi-timeframe aggregation
+Features (6 modules):
+
+market_structure.py — swing high/low detection, HH/HL/LH/LL classification, BOS/CHOCH events
+liquidity_model.py — equal highs/lows, range extremes, sweep detection
+order_block_detector.py — impulse-based OB detection with mitigation tracking
+fair_value_gap.py — 3-candle imbalance detection, fill tracking
+support_resistance.py — volatility-tolerant swing level clustering
+volatility_model.py — ATR regime classification (Low/Normal/High/Extreme)
+Strategy — multi_timeframe_strategy.py, signal_engine.py
+
+MTF bias alignment (D1 macro → H4 structure → H1 liquidity → M5 execution)
+Confluence-based signal generation requiring multiple institutional conditions
+Risk — position_sizer.py, risk_manager.py, portfolio_guard.py
+
+(balance × risk%) / SL_distance sizing with lot step rounding
+Pre-trade gating, daily/weekly loss tracking, automatic trading halt
+Execution — order_executor.py, slippage_model.py, trade_manager.py
+
+Spread/ATR ratio filter, 1R→breakeven, 2R→partial close, 3R→trailing stop
+Portfolio — portfolio_manager.py, exposure_controller.py
+
+Analytics — performance_metrics.py (win rate, profit factor, max drawdown, Sharpe), trade_statistics.py
+
+Backtesting — backtester.py (bar-by-bar simulation), walk_forward.py (rolling IS/OOS windows)
+
+Monitoring — rotating file + console structured logging, telemetry collector
+
+bot.py — wires all components together and starts the event loop with graceful SIGINT/SIGTERM shutdown.
+
+Run with: python -m trading_system.bot
