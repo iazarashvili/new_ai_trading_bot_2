@@ -36,12 +36,21 @@ class ExecutionConfig:
 
 
 @dataclass(frozen=True)
+class TradingHours:
+    """Allowed trading window (local time). Trading is blocked outside this range."""
+    start_hour: int = 8    # 08:00 - trading starts
+    end_hour: int = 21     # 21:00 - trading stops
+    enabled: bool = True
+
+
+@dataclass(frozen=True)
 class TradingSettings:
     mt5: MT5Connection = field(default_factory=MT5Connection)
     symbols: tuple[str, ...] = ("BTCUSDm", "EURUSDm", "GBPUSDm")
     timeframes: TimeframeConfig = field(default_factory=TimeframeConfig)
     data: DataConfig = field(default_factory=DataConfig)
     execution: ExecutionConfig = field(default_factory=ExecutionConfig)
+    trading_hours: TradingHours = field(default_factory=TradingHours)
     magic_number: int = 234_000
     loop_interval_seconds: float = 5.0
 

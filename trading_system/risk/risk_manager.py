@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import logging
 import time
+from datetime import datetime
 from typing import Dict, Optional
 
 from trading_system.config.risk_limits import RISK_LIMITS, RiskLimits
+from trading_system.config.settings import SETTINGS
 from trading_system.connectors.mt5_connector import MT5Connector
 from trading_system.core.event_bus import Event, EventBus, EventType
 
@@ -42,9 +44,25 @@ class RiskManager:
         self._trading_disabled = False
         logger.info("Trading re-enabled")
 
+    def _is_within_trading_hours(self) -> bool:
+        """Check if current local time is within allowed trading hours."""
+        hours_cfg = SETTINGS.trading_hours
+        if not hours_cfg.enabled:
+            return True
+        current_hour = datetime.now().hour
+        return hours_cfg.start_hour <= current_hour < hours_cfg.end_hour
+
     def allow_trade(self, symbol: str, direction: str, stop_loss: float) -> bool:
         if self._trading_disabled:
             logger.info("Trade blocked – trading disabled")
+            return False
+
+        if not self._is_within_trading_hours():
+            logger.info(
+                "Trade blocked – outside trading hours (allowed %02d:00–%02d:00)",
+                SETTINGS.trading_hours.start_hour,
+                SETTINGS.trading_hours.end_hour,
+            )
             return False
 
         positions = self._connector.get_open_positions()
