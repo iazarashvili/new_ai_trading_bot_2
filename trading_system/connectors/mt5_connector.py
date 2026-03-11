@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import time
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 import MetaTrader5 as mt5
@@ -273,3 +274,11 @@ class MT5Connector:
         else:
             positions = mt5.positions_get()
         return list(positions) if positions else []
+
+    def get_today_deals(self) -> List[Any]:
+        now = datetime.now(timezone.utc)
+        start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        deals = mt5.history_deals_get(start, now + timedelta(days=1))
+        if deals is None:
+            return []
+        return [d for d in deals if d.magic == self._magic]

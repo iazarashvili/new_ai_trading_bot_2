@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional
+import time
+from typing import Dict, Optional
 
 from trading_system.config.risk_limits import RISK_LIMITS, RiskLimits
 from trading_system.connectors.mt5_connector import MT5Connector
@@ -23,6 +24,7 @@ class RiskManager:
         self._event_bus = event_bus
         self._limits = limits or RISK_LIMITS
         self._trading_disabled = False
+        self._last_close_time: Dict[str, float] = {}
 
     @property
     def trading_disabled(self) -> bool:
@@ -46,11 +48,17 @@ class RiskManager:
             return False
 
         positions = self._connector.get_open_positions()
-        if len(positions) >= self._limits.max_open_trades:
-            logger.info(
-                "Trade blocked – max open trades (%d) reached",
-                self._limits.max_open_trades,
-            )
+
+        if any(p.symbol == symbol for p in positions):
             return False
 
+        last_close = self._last_close_time.get(symbol)
+        if last_close is not None:
+            elapsed_min = (time.time() - last_close) / 60.0
+            if elapsed_min < self._limits.cooldown_minutes:
+                return False
+
         return True
+
+    def record_close(self, symbol: str) -> None:
+        self._last_close_time[symbol] = time.time()

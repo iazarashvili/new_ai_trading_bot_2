@@ -7,6 +7,7 @@ from typing import Dict, List, Optional
 from trading_system.connectors.mt5_connector import MT5Connector
 from trading_system.core.event_bus import Event, EventBus, EventType
 from trading_system.risk.portfolio_guard import PortfolioGuard
+from trading_system.risk.risk_manager import RiskManager
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,7 @@ class ManagedTrade:
     initial_tp: float
     volume: float
     current_sl: float = 0.0
+    last_price: float = 0.0
     breakeven_set: bool = False
     partial_taken: bool = False
     trailing_active: bool = False
@@ -47,10 +49,12 @@ class TradeManager:
         connector: MT5Connector,
         event_bus: EventBus,
         portfolio_guard: PortfolioGuard,
+        risk_manager: RiskManager,
     ) -> None:
         self._connector = connector
         self._event_bus = event_bus
         self._portfolio_guard = portfolio_guard
+        self._risk_manager = risk_manager
         self._trades: Dict[int, ManagedTrade] = {}
 
     def register_trade(self, trade: ManagedTrade) -> None:
@@ -63,21 +67,58 @@ class TradeManager:
         positions = self._connector.get_open_positions(symbol)
         open_tickets = {p.ticket for p in positions}
 
-        closed = [t for t in self._trades if t not in open_tickets]
+        closed = [
+            t for t, trade in self._trades.items()
+            if t not in open_tickets and (symbol is None or trade.symbol == symbol)
+        ]
         for ticket in closed:
             trade = self._trades.pop(ticket)
-            logger.info("Trade %d closed externally", ticket)
+            realized_pnl = self._calc_closed_pnl(trade)
+            account = self._connector.account_info()
+            if account:
+                self._portfolio_guard.record_pnl(realized_pnl, account.balance)
+            self._risk_manager.record_close(trade.symbol)
+            logger.info("Trade %d closed (PnL=%.2f)", ticket, realized_pnl)
             self._event_bus.publish(Event(
                 event_type=EventType.TRADE,
-                payload={"ticket": ticket, "symbol": trade.symbol, "action": "closed"},
+                payload={"ticket": ticket, "symbol": trade.symbol, "action": "closed", "pnl": realized_pnl},
             ))
 
         for pos in positions:
             trade = self._trades.get(pos.ticket)
             if trade is None:
-                continue
+                trade = self._adopt_position(pos)
             current_price = pos.price_current
+            trade.last_price = current_price
             self._apply_management(trade, current_price)
+
+    @staticmethod
+    def _calc_closed_pnl(trade: ManagedTrade) -> float:
+        """Estimate realized PnL from last known price."""
+        close_price = trade.last_price if trade.last_price != 0.0 else trade.entry_price
+        if trade.direction == "BUY":
+            return (close_price - trade.entry_price) * trade.volume
+        return (trade.entry_price - close_price) * trade.volume
+
+    def _adopt_position(self, pos) -> ManagedTrade:
+        """Re-register an MT5 position not tracked in memory (e.g. after restart)."""
+        direction = "BUY" if pos.type == 0 else "SELL"
+        trade = ManagedTrade(
+            ticket=pos.ticket,
+            symbol=pos.symbol,
+            direction=direction,
+            entry_price=pos.price_open,
+            initial_sl=pos.sl,
+            initial_tp=pos.tp,
+            volume=pos.volume,
+            current_sl=pos.sl,
+        )
+        self._trades[pos.ticket] = trade
+        logger.info(
+            "Adopted orphan position %d (%s %s) opened @ %.5f",
+            pos.ticket, direction, pos.symbol, pos.price_open,
+        )
+        return trade
 
     def _apply_management(self, trade: ManagedTrade, current_price: float) -> None:
         r = trade.risk_distance
@@ -116,14 +157,23 @@ class TradeManager:
         close_volume = round(trade.volume * 0.5, 2)
         if close_volume <= 0:
             return
+        tick = self._connector.get_tick(trade.symbol)
+        if tick is None:
+            return
+        current_price = tick["bid"] if trade.direction == "BUY" else tick["ask"]
         if self._connector.close_position(trade.ticket, trade.symbol, close_volume):
             trade.partial_taken = True
             trade.volume -= close_volume
-            logger.info("Trade %d – partial close %.2f lots", trade.ticket, close_volume)
+
+            if trade.direction == "BUY":
+                partial_pnl = (current_price - trade.entry_price) * close_volume
+            else:
+                partial_pnl = (trade.entry_price - current_price) * close_volume
 
             account = self._connector.account_info()
             if account:
-                self._portfolio_guard.record_pnl(0.0, account.balance)
+                self._portfolio_guard.record_pnl(partial_pnl, account.balance)
+            logger.info("Trade %d – partial close %.2f lots (PnL=%.2f)", trade.ticket, close_volume, partial_pnl)
 
     def _activate_trailing(self, trade: ManagedTrade, current_price: float) -> None:
         trade.trailing_active = True

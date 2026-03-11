@@ -13,7 +13,7 @@ from typing import Optional
 from trading_system.config.settings import SETTINGS
 from trading_system.connectors.mt5_connector import MT5Connector
 from trading_system.core.engine import TradingEngine
-from trading_system.core.event_bus import EventBus
+from trading_system.core.event_bus import EventBus, EventType
 from trading_system.core.scheduler import Scheduler
 from trading_system.data.candle_service import CandleService
 from trading_system.data.data_cache import DataCache
@@ -28,6 +28,7 @@ from trading_system.features.support_resistance import SupportResistance
 from trading_system.features.volatility_model import VolatilityModel
 from trading_system.monitoring.logger import setup_logging
 from trading_system.monitoring.telemetry import Telemetry
+from trading_system.monitoring.trade_report import TradeReport
 from trading_system.portfolio.exposure_controller import ExposureController
 from trading_system.portfolio.portfolio_manager import PortfolioManager
 from trading_system.risk.portfolio_guard import PortfolioGuard
@@ -45,6 +46,7 @@ class TradingBot:
     def __init__(self) -> None:
         setup_logging()
         logger.info("Initializing Trading Bot")
+        self._stopped = False
 
         self.event_bus = EventBus()
         self.connector = MT5Connector(
@@ -81,18 +83,24 @@ class TradingBot:
             connector=self.connector, risk_manager=self.risk_manager
         )
 
+        # Reporting
+        self.trade_report = TradeReport(connector=self.connector)
+
         # Execution
         self.slippage_model = SlippageModel()
+        self.trade_manager = TradeManager(
+            connector=self.connector,
+            event_bus=self.event_bus,
+            portfolio_guard=self.portfolio_guard,
+            risk_manager=self.risk_manager,
+        )
         self.order_executor = OrderExecutor(
             connector=self.connector,
             event_bus=self.event_bus,
             position_sizer=self.position_sizer,
             slippage_model=self.slippage_model,
-        )
-        self.trade_manager = TradeManager(
-            connector=self.connector,
-            event_bus=self.event_bus,
-            portfolio_guard=self.portfolio_guard,
+            trade_manager=self.trade_manager,
+            trade_report=self.trade_report,
         )
 
         # Strategy
@@ -124,9 +132,29 @@ class TradingBot:
             timeframes=SETTINGS.timeframes.all,
         )
 
+        # Event subscriptions
+        self._wire_event_handlers()
+
         # Scheduler
         self.scheduler = Scheduler(interval_seconds=SETTINGS.loop_interval_seconds)
         self.scheduler.register(self.engine.tick)
+
+    def _wire_event_handlers(self) -> None:
+        self.event_bus.subscribe(
+            EventType.ORDER,
+            lambda e: self.portfolio_manager.snapshot(),
+        )
+        self.event_bus.subscribe(
+            EventType.TRADE,
+            lambda e: self.portfolio_manager.snapshot(),
+        )
+        self.event_bus.subscribe(
+            EventType.RISK,
+            lambda e: logger.warning(
+                "RISK EVENT: %s – %s",
+                e.payload.get("action"), e.payload.get("reason"),
+            ),
+        )
 
     def start(self) -> None:
         logger.info("Starting Trading Bot")
@@ -152,8 +180,15 @@ class TradingBot:
             self.stop()
 
     def stop(self) -> None:
+        if self._stopped:
+            return
+        self._stopped = True
         logger.info("Shutting down Trading Bot")
         self.scheduler.stop()
+        try:
+            self.trade_report.write_daily_summary()
+        except Exception:
+            logger.exception("Failed to write daily summary")
         self.connector.disconnect()
         logger.info("Trading Bot stopped")
 

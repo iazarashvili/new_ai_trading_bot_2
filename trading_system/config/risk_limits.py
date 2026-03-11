@@ -11,6 +11,7 @@ class RiskLimits:
     max_weekly_loss_pct: float = 6.0
     max_correlation_exposure: float = 0.8
     min_reward_risk_ratio: float = 2.0
+    cooldown_minutes: int = 15
 
 
 RISK_LIMITS = RiskLimits()
