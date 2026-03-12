@@ -48,32 +48,50 @@ class WalkForward:
         data: Dict[str, pd.DataFrame],
         execution_tf: str = "M5",
         htf: str = "D1",
+        step: int = 5,
     ) -> WalkForwardResult:
         exec_df = data[execution_tf]
         total = len(exec_df)
-        step = total // self._n_splits
-        oos_size = max(int(step * self._oos_ratio), 50)
+        split_size = total // self._n_splits
+        oos_size = max(int(split_size * self._oos_ratio), 50)
+
+        bars_per_day = 288 if execution_tf == "M5" else 96 if execution_tf == "M15" else 288
 
         windows: List[WalkForwardWindow] = []
         all_oos_pnls: List[float] = []
 
         for i in range(self._n_splits):
             is_start = 0
-            is_end = (i + 1) * step - oos_size
+            is_end = (i + 1) * split_size - oos_size
             oos_start = is_end
-            oos_end = min((i + 1) * step, total)
+            oos_end = min((i + 1) * split_size, total)
 
             if is_end <= 200 or oos_end <= oos_start:
                 continue
 
-            is_data = {tf: df.iloc[is_start:is_end] for tf, df in data.items()}
-            oos_data = {tf: df.iloc[oos_start:oos_end] for tf, df in data.items()}
+            is_data = {}
+            oos_data = {}
+            for tf, df in data.items():
+                if tf == htf:
+                    is_end_d1 = min(is_end // bars_per_day, len(df))
+                    oos_start_d1 = oos_start // bars_per_day
+                    oos_end_d1 = min(oos_end // bars_per_day, len(df))
+                    is_data[tf] = df.iloc[:is_end_d1]
+                    oos_data[tf] = df.iloc[:oos_end_d1]
+                else:
+                    is_data[tf] = df.iloc[is_start:is_end]
+                    oos_data[tf] = df.iloc[oos_start:oos_end]
 
             backtester = Backtester(self._config)
 
             try:
-                is_result = backtester.run(is_data, execution_tf, htf, warmup=min(200, is_end // 2))
-                oos_result = backtester.run(oos_data, execution_tf, htf, warmup=min(100, (oos_end - oos_start) // 2))
+                is_result = backtester.run(is_data, execution_tf, htf, warmup=min(200, is_end // 2), step=step)
+                oos_result = backtester.run(
+                    oos_data, execution_tf, htf,
+                    warmup=min(100, (oos_end - oos_start) // 2),
+                    step=step,
+                    htf_start_offset=oos_start,
+                )
             except Exception:
                 logger.exception("Walk-forward window %d failed", i)
                 continue

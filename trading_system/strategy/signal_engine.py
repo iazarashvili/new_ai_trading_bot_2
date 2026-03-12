@@ -18,6 +18,7 @@ from trading_system.features.market_structure import (
 )
 from trading_system.features.order_block_detector import OrderBlock
 from trading_system.features.volatility_model import VolatilityResult
+from trading_system.config.settings import SETTINGS
 from trading_system.risk.risk_manager import RiskManager
 from trading_system.strategy.multi_timeframe_strategy import MTFBias, MultiTimeframeStrategy
 
@@ -52,7 +53,7 @@ class SignalEngine:
         mtf_strategy: MultiTimeframeStrategy,
         risk_manager: RiskManager,
         order_executor: OrderExecutor,
-        min_confidence: float = 0.6,
+        min_confidence: float = 0.8,
     ) -> None:
         self._event_bus = event_bus
         self._mtf = mtf_strategy
@@ -70,8 +71,9 @@ class SignalEngine:
         if not bias.aligned:
             return None
 
-        exec_tf = "M5"
+        exec_tf = SETTINGS.timeframes.execution
         if exec_tf not in features:
+            logger.debug("No features for exec TF %s (have: %s)", exec_tf, list(features.keys()))
             return None
 
         feat = features[exec_tf]
@@ -100,7 +102,7 @@ class SignalEngine:
                     "reasons": signal.reasons,
                 },
             ))
-            if self._risk_manager.allow_trade(symbol, signal.direction, signal.stop_loss):
+            if self._risk_manager.allow_trade(symbol, signal.direction, signal.entry, signal.stop_loss):
                 self._executor.execute_signal(signal)
 
         return signal
@@ -151,10 +153,14 @@ class SignalEngine:
 
         if confidence < self._min_confidence:
             return None
+        if not (bullish_ob or bullish_fvg):
+            return None
 
         atr = vol.atr if vol else abs(close * 0.002)
-        sl = close - atr * 1.5
-        tp = close + atr * 3.0
+        if atr <= 0 or atr < abs(close) * 0.0005:
+            return None
+        sl = close - atr * 2.0
+        tp = close + atr * 4.0
 
         return Signal(
             symbol=symbol,
@@ -212,10 +218,14 @@ class SignalEngine:
 
         if confidence < self._min_confidence:
             return None
+        if not (bearish_ob or bearish_fvg):
+            return None
 
         atr = vol.atr if vol else abs(close * 0.002)
-        sl = close + atr * 1.5
-        tp = close - atr * 3.0
+        if atr <= 0 or atr < abs(close) * 0.0005:
+            return None
+        sl = close + atr * 2.0
+        tp = close - atr * 4.0
 
         return Signal(
             symbol=symbol,

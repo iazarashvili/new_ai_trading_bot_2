@@ -34,6 +34,7 @@ class MultiTimeframeStrategy:
         "H4": "structure_dir",
         "H1": "liquidity_bias",
         "M5": "execution_trend",
+        "M15": "execution_trend",
     }
 
     def __init__(self) -> None:

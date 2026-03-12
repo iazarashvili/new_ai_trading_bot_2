@@ -5,7 +5,7 @@ import math
 from typing import Optional
 
 from trading_system.config.risk_limits import RISK_LIMITS
-from trading_system.config.symbols import SymbolSpec, get_symbol_spec
+from trading_system.config.symbols import get_symbol_spec
 
 logger = logging.getLogger(__name__)
 

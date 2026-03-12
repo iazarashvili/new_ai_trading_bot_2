@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import logging
-import os
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import List, Any, Optional
+from typing import List, Optional
 
 from trading_system.connectors.mt5_connector import MT5Connector
 

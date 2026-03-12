@@ -16,7 +16,7 @@ class MarketData:
     def __init__(
         self,
         candle_service: CandleService,
-        timeframes: tuple[str, ...] = ("M5", "H1", "H4", "D1"),
+        timeframes: tuple[str, ...] = ("M15", "H1", "H4", "D1"),
     ) -> None:
         self._candle_service = candle_service
         self._timeframes = timeframes

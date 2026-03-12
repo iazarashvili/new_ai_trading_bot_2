@@ -7,7 +7,7 @@ from typing import List
 import numpy as np
 import pandas as pd
 
-from trading_system.features.market_structure import MarketStructure, SwingPoint
+from trading_system.features.market_structure import MarketStructure
 
 logger = logging.getLogger(__name__)
 

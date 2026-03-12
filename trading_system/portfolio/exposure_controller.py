@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import List, Optional
+from typing import Optional
 
 from trading_system.config.risk_limits import RISK_LIMITS, RiskLimits
 from trading_system.connectors.mt5_connector import MT5Connector

@@ -1,14 +1,11 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
-
-import numpy as np
+from dataclasses import dataclass
+from typing import Dict, List, Optional
 import pandas as pd
 
 from trading_system.analytics.performance_metrics import Metrics, PerformanceMetrics
-from trading_system.analytics.trade_statistics import TradeRecord
 from trading_system.features.fair_value_gap import FairValueGap
 from trading_system.features.liquidity_model import LiquidityModel
 from trading_system.features.market_structure import MarketStructure, Trend
@@ -72,24 +69,29 @@ class Backtester:
         execution_tf: str = "M5",
         htf: str = "D1",
         warmup: int = 200,
+        step: int = 1,
+        htf_start_offset: int = 0,
     ) -> BacktestResult:
         exec_df = data.get(execution_tf)
         htf_df = data.get(htf)
         if exec_df is None:
             raise ValueError(f"No data for execution timeframe {execution_tf}")
 
+        bars_per_day = 288 if execution_tf == "M5" else 96 if execution_tf == "M15" else 288
         balance = self._config.initial_balance
         trades: List[BacktestTrade] = []
         equity: List[float] = [balance]
         open_trade: Optional[BacktestTrade] = None
 
         htf_trend = Trend.NEUTRAL
-        if htf_df is not None and len(htf_df) > warmup:
-            htf_ms = self._market_structure.analyze(htf_df.iloc[:warmup])
+        if htf_df is not None and len(htf_df) >= 20:
+            day_at_warmup = (htf_start_offset + warmup) // bars_per_day + 1
+            htf_warmup = max(20, min(day_at_warmup, len(htf_df)))
+            htf_ms = self._market_structure.analyze(htf_df.iloc[:htf_warmup])
             htf_trend = htf_ms.trend
 
         for i in range(warmup, len(exec_df)):
-            window = exec_df.iloc[max(0, i - 999) : i + 1]
+            window = exec_df.iloc[max(0, i - 400) : i + 1]
 
             if open_trade is not None and not open_trade.closed:
                 high = exec_df["high"].iloc[i]
@@ -105,12 +107,16 @@ class Backtester:
             if open_trade is not None:
                 continue
 
+            if i % step != 0:
+                continue
+
             if len(window) < 50:
                 continue
 
             # Periodically refresh HTF trend
-            if htf_df is not None and i % 50 == 0:
-                htf_window = htf_df.iloc[: min(len(htf_df), i // 12 + 1)]
+            if htf_df is not None and i % 100 == 0:
+                day_idx = (htf_start_offset + i) // bars_per_day + 1
+                htf_window = htf_df.iloc[: min(len(htf_df), day_idx)]
                 if len(htf_window) > 20:
                     htf_ms = self._market_structure.analyze(htf_window)
                     htf_trend = htf_ms.trend
@@ -164,6 +170,10 @@ class Backtester:
     def _generate_signal(
         self, htf_trend, ms, liq, obs, fvgs, vol, close
     ) -> Optional[tuple]:
+        atr = vol.atr
+        if atr <= 0 or atr < abs(close) * 0.0005:
+            return None
+
         if htf_trend == Trend.BULLISH:
             has_sweep = any(s.close_back_inside and s.sweep_price < close for s in liq.sweeps)
             has_ob = any(ob.direction == "bullish" and not ob.mitigated and ob.low <= close <= ob.high for ob in obs)
@@ -171,9 +181,8 @@ class Backtester:
             bullish_shift = any(e.direction == Trend.BULLISH for e in ms.events[-3:]) if ms.events else False
 
             score = sum([has_sweep, has_ob, has_fvg, bullish_shift])
-            if score >= 2:
-                atr = vol.atr
-                return ("BUY", close - atr * 1.5, close + atr * 3.0)
+            if score >= 3 and (has_ob or has_fvg):
+                return ("BUY", close - atr * 2.0, close + atr * 4.0)
 
         elif htf_trend == Trend.BEARISH:
             has_sweep = any(s.close_back_inside and s.sweep_price > close for s in liq.sweeps)
@@ -182,9 +191,8 @@ class Backtester:
             bearish_shift = any(e.direction == Trend.BEARISH for e in ms.events[-3:]) if ms.events else False
 
             score = sum([has_sweep, has_ob, has_fvg, bearish_shift])
-            if score >= 2:
-                atr = vol.atr
-                return ("SELL", close + atr * 1.5, close - atr * 3.0)
+            if score >= 3 and (has_ob or has_fvg):
+                return ("SELL", close + atr * 2.0, close - atr * 4.0)
 
         return None
 

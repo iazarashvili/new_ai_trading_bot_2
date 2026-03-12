@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from dataclasses import dataclass
+from typing import Dict, Optional
 
 from trading_system.connectors.mt5_connector import MT5Connector
 from trading_system.core.event_bus import Event, EventBus, EventType

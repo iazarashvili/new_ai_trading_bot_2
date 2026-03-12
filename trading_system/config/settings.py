@@ -14,7 +14,7 @@ class MT5Connection:
 
 @dataclass(frozen=True)
 class TimeframeConfig:
-    execution: str = "M5"
+    execution: str = "M15"
     higher: tuple[str, ...] = ("H1", "H4", "D1")
 
     @property
@@ -46,7 +46,7 @@ class TradingHours:
 @dataclass(frozen=True)
 class TradingSettings:
     mt5: MT5Connection = field(default_factory=MT5Connection)
-    symbols: tuple[str, ...] = ("BTCUSDm", "EURUSDm", "GBPUSDm")
+    symbols: tuple[str, ...] = ("EURUSDm", "GBPUSDm")
     timeframes: TimeframeConfig = field(default_factory=TimeframeConfig)
     data: DataConfig = field(default_factory=DataConfig)
     execution: ExecutionConfig = field(default_factory=ExecutionConfig)

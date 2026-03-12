@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Dict, Optional
 
 
 @dataclass(frozen=True)
@@ -12,6 +13,16 @@ class RiskLimits:
     max_correlation_exposure: float = 0.8
     min_reward_risk_ratio: float = 2.0
     cooldown_minutes: int = 15
+    min_sl_pips: float = 5.0
+    min_sl_spread_mult: float = 2.0
 
+
+# EURUSD, GBPUSD – ლიკვიდური მაჯორები, ვიწრო სპრედი (1–2 პიპი)
+SYMBOL_SL_OVERRIDES: Dict[str, Dict[str, float]] = {
+    "EURUSDm": {"min_sl_pips": 3.0, "min_sl_spread_mult": 1.5},
+    "EURUSDm": {"min_sl_pips": 3.0, "min_sl_spread_mult": 1.5},
+    "GBPUSDm": {"min_sl_pips": 3.0, "min_sl_spread_mult": 1.5},
+    "GBPUSDm": {"min_sl_pips": 3.0, "min_sl_spread_mult": 1.5},
+}
 
 RISK_LIMITS = RiskLimits()

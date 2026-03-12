@@ -74,3 +74,55 @@
 2026-03-10 23:41:23 | INFO     | trading_system.core.scheduler | Scheduler stopped
 2026-03-10 23:41:23 | INFO     | trading_system.connectors.mt5_connector | MT5 disconnected
 2026-03-10 23:41:23 | INFO     | __main__ | Trading Bot stopped
+2026-03-10 23:41:27 | INFO     | __main__ | Initializing Trading Bot
+2026-03-10 23:41:27 | INFO     | __main__ | Starting Trading Bot
+2026-03-10 23:41:27 | INFO     | trading_system.connectors.mt5_connector | Connected – account 262427958, balance 1000.00 USD
+2026-03-10 23:41:27 | INFO     | __main__ | Account: balance=1000.00 equity=1000.00 leverage=2000
+2026-03-10 23:41:27 | INFO     | trading_system.core.scheduler | Scheduler started – interval 5.0s
+2026-03-10 23:41:28 | INFO     | trading_system.connectors.mt5_connector | Order filled: ticket=914455590 price=1.34220 vol=0.08
+2026-03-10 23:41:28 | INFO     | trading_system.execution.order_executor | EXECUTED SELL GBPUSDm 0.08 lots @ 1.34220  SL=1.34334 TP=1.33993
+2026-03-10 23:41:32 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:41:37 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:41:42 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:41:47 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:41:52 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:41:57 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:42:02 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:42:07 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:42:12 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:42:17 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:42:22 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:42:27 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:42:32 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:42:37 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:42:42 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:42:47 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:42:52 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:42:57 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:43:02 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:43:07 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:43:12 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:43:17 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:43:22 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:43:27 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:43:32 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:43:37 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:43:42 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:43:47 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:43:52 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:43:57 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:44:02 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:44:07 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:44:12 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:44:17 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:44:22 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:44:27 | INFO     | trading_system.risk.risk_manager | Trade blocked – max open trades (1) reached
+2026-03-10 23:49:18 | INFO     | __main__ | Received signal 2 – shutting down
+2026-03-10 23:49:18 | INFO     | __main__ | Shutting down Trading Bot
+2026-03-10 23:49:18 | INFO     | trading_system.core.scheduler | Scheduler stopped
+2026-03-10 23:49:18 | INFO     | trading_system.connectors.mt5_connector | MT5 disconnected
+2026-03-10 23:49:18 | INFO     | __main__ | Trading Bot stopped
+2026-03-10 23:49:18 | INFO     | __main__ | Shutting down Trading Bot
+2026-03-10 23:49:18 | INFO     | trading_system.core.scheduler | Scheduler stopped
+2026-03-10 23:49:18 | INFO     | trading_system.connectors.mt5_connector | MT5 disconnected
+2026-03-10 23:49:18 | INFO     | __main__ | Trading Bot stopped

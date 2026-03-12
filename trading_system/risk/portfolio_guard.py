@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import time
 from collections import deque
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Deque, Optional
 
 from trading_system.config.risk_limits import RISK_LIMITS, RiskLimits

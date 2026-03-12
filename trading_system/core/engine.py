@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 from trading_system.core.event_bus import Event, EventBus, EventType
 
 if TYPE_CHECKING:
-    from trading_system.connectors.mt5_connector import MT5Connector
     from trading_system.data.candle_service import CandleService
     from trading_system.execution.trade_manager import TradeManager
     from trading_system.features.fair_value_gap import FairValueGap
