@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class BacktestConfig:
     initial_balance: float = 10_000.0
     risk_per_trade_pct: float = 1.0
-    max_open_trades: int = 1
+    max_open_trades: int = 2
     commission_per_lot: float = 0.0
     spread_points: float = 0.0
 

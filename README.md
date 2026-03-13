@@ -86,8 +86,8 @@ connector = MT5Connector()
 connector.connect()
 
 data = {
-    "M5": connector.get_candles("EURUSD", "M5", 5000),
-    "D1": connector.get_candles("EURUSD", "D1", 500),
+    "M5": connector.get_candles("EURUSDm", "M5", 5000),
+    "D1": connector.get_candles("EURUSDm", "D1", 500),
 }
 
 bt = Backtester(BacktestConfig(initial_balance=10_000))
@@ -122,7 +122,7 @@ Edit `trading_system/config/risk_limits.py` to adjust risk parameters.
 
 Config — settings.py, symbols.py, risk_limits.py
 
-Frozen dataclass configs for symbols (BTCUSD, EURUSD, GBPUSD), timeframes (M5/H1/H4/D1), risk limits (1% per trade, 3% daily max, 6% weekly max, 1 open trade max)
+Frozen dataclass configs for symbols (EURUSD, GBPUSD), timeframes (M5/H1/H4/D1), risk limits (1% per trade, 3% daily max, 6% weekly max, 1 open trade max)
 Core — event_bus.py, scheduler.py, engine.py
 
 Pub/sub EventBus with typed events (MARKET_DATA, SIGNAL, ORDER, TRADE, RISK)

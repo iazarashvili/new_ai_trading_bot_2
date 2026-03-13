@@ -48,3 +48,4 @@ Thumbs.db
 # Trading specific
 trade_reports/
 *.pyc
+logs/
