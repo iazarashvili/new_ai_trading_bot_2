@@ -24,6 +24,8 @@ class OrderBlockDetector:
     """Detect order blocks: the last opposite candle before an institutional impulse.
 
     Impulse rule: candle_range > average_range * impulse_multiplier
+
+    Fix: mitigation requires candle BODY close through the OB, not just wick.
     """
 
     def __init__(
@@ -84,24 +86,32 @@ class OrderBlockDetector:
                         ))
                         break
 
-        self._mark_mitigated(blocks, highs, lows)
+        self._mark_mitigated(blocks, closes)
         return blocks[-self._max_blocks:]
 
     @staticmethod
     def _mark_mitigated(
-        blocks: List[OrderBlock], highs: np.ndarray, lows: np.ndarray
+        blocks: List[OrderBlock], closes: np.ndarray,
     ) -> None:
+        """Mark OB as mitigated only when candle BODY closes through it.
+
+        - Bullish OB mitigated: candle close < OB low  (price broke down through it)
+        - Bearish OB mitigated: candle close > OB high (price broke up through it)
+
+        Previously used wick (high/low) which was too aggressive — valid OBs
+        that were merely touched by a wick got killed prematurely.
+        """
         for ob in blocks:
             if ob.mitigated:
                 continue
             start = ob.index + 1
             if ob.direction == "bullish":
-                for k in range(start, len(lows)):
-                    if lows[k] < ob.low:
+                for k in range(start, len(closes)):
+                    if closes[k] < ob.low:
                         ob.mitigated = True
                         break
             else:
-                for k in range(start, len(highs)):
-                    if highs[k] > ob.high:
+                for k in range(start, len(closes)):
+                    if closes[k] > ob.high:
                         ob.mitigated = True
                         break

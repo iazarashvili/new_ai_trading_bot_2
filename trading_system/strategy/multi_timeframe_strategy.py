@@ -16,7 +16,7 @@ class MTFBias:
     macro_trend: Trend      # D1
     structure_dir: Trend     # H4
     liquidity_bias: Trend    # H1
-    execution_trend: Trend   # M5
+    execution_trend: Trend   # M15
     aligned: bool
 
 
@@ -26,7 +26,11 @@ class MultiTimeframeStrategy:
     D1 -> macro trend
     H4 -> structure direction
     H1 -> liquidity targets
-    M5 -> execution
+    M15 -> execution
+
+    Fix: alignment is relaxed — D1 macro trend is primary.
+    H4 confirms when available, but NEUTRAL H4 no longer blocks signals.
+    Previously D1 == H4 was required, killing all signals in ranging H4.
     """
 
     TF_ROLES = {
@@ -57,9 +61,15 @@ class MultiTimeframeStrategy:
         macro = trends.get("macro_trend", Trend.NEUTRAL)
         structure = trends.get("structure_dir", Trend.NEUTRAL)
 
-        if macro == Trend.NEUTRAL or structure == Trend.NEUTRAL:
+        if macro == Trend.NEUTRAL:
+            # No clear D1 trend — never trade
             aligned = False
+        elif structure == Trend.NEUTRAL:
+            # D1 has direction, H4 is neutral (ranging) — allow trading
+            # with D1 bias alone. Previously this blocked all signals.
+            aligned = True
         else:
+            # Both have direction — they must agree
             aligned = macro == structure
 
         return MTFBias(

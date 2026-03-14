@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Dict, Optional
 
 from trading_system.connectors.mt5_connector import MT5Connector
+from trading_system.config.symbols import get_symbol_spec
 from trading_system.core.event_bus import Event, EventBus, EventType
 from trading_system.risk.portfolio_guard import PortfolioGuard
 from trading_system.risk.risk_manager import RiskManager
@@ -42,6 +43,10 @@ class TradeManager:
     1R -> move SL to breakeven
     2R -> partial take profit (close 50%)
     3R -> trail stop behind structure
+
+    Fixes:
+    - PnL calculation includes contract_size (critical for forex)
+    - Trailing stop tightened from 1.5R to 1.0R
     """
 
     def __init__(
@@ -93,12 +98,24 @@ class TradeManager:
             self._apply_management(trade, current_price)
 
     @staticmethod
-    def _calc_closed_pnl(trade: ManagedTrade) -> float:
-        """Estimate realized PnL from last known price."""
+    def _get_contract_size(symbol: str) -> float:
+        try:
+            return get_symbol_spec(symbol).contract_size
+        except ValueError:
+            return 1.0
+
+    def _calc_closed_pnl(self, trade: ManagedTrade) -> float:
+        """Estimate realized PnL from last known price.
+
+        Fix: multiply by contract_size. For forex 1 lot = 100,000 units,
+        so a 20-pip move on 0.5 lots = 0.0020 * 0.5 * 100,000 = $100.
+        Previously this was 0.0020 * 0.5 = $0.001 (wrong by 100,000x).
+        """
         close_price = trade.last_price if trade.last_price != 0.0 else trade.entry_price
+        contract_size = self._get_contract_size(trade.symbol)
         if trade.direction == "BUY":
-            return (close_price - trade.entry_price) * trade.volume
-        return (trade.entry_price - close_price) * trade.volume
+            return (close_price - trade.entry_price) * trade.volume * contract_size
+        return (trade.entry_price - close_price) * trade.volume * contract_size
 
     def _adopt_position(self, pos) -> ManagedTrade:
         """Re-register an MT5 position not tracked in memory (e.g. after restart)."""
@@ -165,10 +182,11 @@ class TradeManager:
             trade.partial_taken = True
             trade.volume -= close_volume
 
+            contract_size = self._get_contract_size(trade.symbol)
             if trade.direction == "BUY":
-                partial_pnl = (current_price - trade.entry_price) * close_volume
+                partial_pnl = (current_price - trade.entry_price) * close_volume * contract_size
             else:
-                partial_pnl = (trade.entry_price - current_price) * close_volume
+                partial_pnl = (trade.entry_price - current_price) * close_volume * contract_size
 
             account = self._connector.account_info()
             if account:
@@ -181,7 +199,8 @@ class TradeManager:
         logger.info("Trade %d – trailing stop activated", trade.ticket)
 
     def _update_trailing(self, trade: ManagedTrade, current_price: float) -> None:
-        trail_distance = trade.risk_distance * 1.5
+        # Tightened from 1.5R to 1.0R — keeps more profit on forex
+        trail_distance = trade.risk_distance * 1.0
         if trade.direction == "BUY":
             new_sl = current_price - trail_distance
             if new_sl > trade.current_sl:

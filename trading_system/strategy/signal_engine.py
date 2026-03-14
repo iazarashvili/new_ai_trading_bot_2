@@ -39,12 +39,10 @@ class Signal:
 class SignalEngine:
     """Evaluate institutional confluence and generate trade signals.
 
-    A trade requires alignment of:
-      - Higher timeframe trend
-      - Liquidity sweep
-      - Order block
-      - Fair value gap
-      - Structure shift (BOS/CHOCH)
+    Fixes:
+    - OB/FVG check uses candle low/high range, not just close price
+    - Confidence threshold lowered to 0.6 (3 out of 5 conditions)
+    - Macro trend alone is enough when H4 is neutral (relaxed alignment)
     """
 
     def __init__(
@@ -53,7 +51,7 @@ class SignalEngine:
         mtf_strategy: MultiTimeframeStrategy,
         risk_manager: RiskManager,
         order_executor: OrderExecutor,
-        min_confidence: float = 0.8,
+        min_confidence: float = 0.6,
     ) -> None:
         self._event_bus = event_bus
         self._mtf = mtf_strategy
@@ -79,15 +77,17 @@ class SignalEngine:
         feat = features[exec_tf]
         df = candles_by_tf[exec_tf]
         close = float(df["close"].iloc[-1])
+        candle_low = float(df["low"].iloc[-1])
+        candle_high = float(df["high"].iloc[-1])
 
         vol: VolatilityResult = feat.get("volatility")
         if vol and not vol.tradeable:
             logger.debug("Volatility too low for %s – skipping", symbol)
             return None
 
-        signal = self._check_long(symbol, close, bias, feat, vol)
+        signal = self._check_long(symbol, close, candle_low, candle_high, bias, feat, vol)
         if signal is None:
-            signal = self._check_short(symbol, close, bias, feat, vol)
+            signal = self._check_short(symbol, close, candle_low, candle_high, bias, feat, vol)
 
         if signal is not None:
             self._event_bus.publish(Event(
@@ -107,10 +107,14 @@ class SignalEngine:
 
         return signal
 
+    # ------------------------------------------------------------------
+
     def _check_long(
         self,
         symbol: str,
         close: float,
+        candle_low: float,
+        candle_high: float,
         bias: MTFBias,
         feat: Dict[str, Any],
         vol: Optional[VolatilityResult],
@@ -129,23 +133,22 @@ class SignalEngine:
                 confidence += 0.2
 
         obs: List[OrderBlock] = feat.get("order_blocks", [])
-        bullish_ob = self._find_active_ob(obs, close, "bullish")
+        bullish_ob = self._find_active_ob(obs, candle_low, candle_high, "bullish")
         if bullish_ob:
             reasons.append("Bullish order block")
             confidence += 0.2
 
         fvgs: List[FVG] = feat.get("fvg", [])
-        bullish_fvg = self._price_in_fvg(fvgs, close, "bullish")
+        bullish_fvg = self._price_in_fvg(fvgs, candle_low, candle_high, "bullish")
         if bullish_fvg:
             reasons.append("Price inside bullish FVG")
             confidence += 0.2
 
         ms: StructureResult = feat.get("market_structure")
-        if ms:
+        if ms and ms.events:
             bullish_shift = any(
                 e.direction == Trend.BULLISH
                 for e in ms.events[-3:]
-                if ms.events
             )
             if bullish_shift:
                 reasons.append("Bullish structure shift")
@@ -176,6 +179,8 @@ class SignalEngine:
         self,
         symbol: str,
         close: float,
+        candle_low: float,
+        candle_high: float,
         bias: MTFBias,
         feat: Dict[str, Any],
         vol: Optional[VolatilityResult],
@@ -194,23 +199,22 @@ class SignalEngine:
                 confidence += 0.2
 
         obs: List[OrderBlock] = feat.get("order_blocks", [])
-        bearish_ob = self._find_active_ob(obs, close, "bearish")
+        bearish_ob = self._find_active_ob(obs, candle_low, candle_high, "bearish")
         if bearish_ob:
             reasons.append("Bearish order block")
             confidence += 0.2
 
         fvgs: List[FVG] = feat.get("fvg", [])
-        bearish_fvg = self._price_in_fvg(fvgs, close, "bearish")
+        bearish_fvg = self._price_in_fvg(fvgs, candle_low, candle_high, "bearish")
         if bearish_fvg:
             reasons.append("Price inside bearish FVG")
             confidence += 0.2
 
         ms: StructureResult = feat.get("market_structure")
-        if ms:
+        if ms and ms.events:
             bearish_shift = any(
                 e.direction == Trend.BEARISH
                 for e in ms.events[-3:]
-                if ms.events
             )
             if bearish_shift:
                 reasons.append("Bearish structure shift")
@@ -237,22 +241,37 @@ class SignalEngine:
             reasons=reasons,
         )
 
+    # ------------------------------------------------------------------
+    # Fix: check if candle RANGE overlaps OB/FVG, not just close price
+    # ------------------------------------------------------------------
+
     @staticmethod
     def _find_active_ob(
-        order_blocks: List[OrderBlock], price: float, direction: str
+        order_blocks: List[OrderBlock],
+        candle_low: float,
+        candle_high: float,
+        direction: str,
     ) -> Optional[OrderBlock]:
+        """True if the candle's range [low, high] overlaps the OB zone."""
         for ob in reversed(order_blocks):
             if ob.direction != direction or ob.mitigated:
                 continue
-            if ob.low <= price <= ob.high:
+            # Overlap: candle_low <= ob.high AND candle_high >= ob.low
+            if candle_low <= ob.high and candle_high >= ob.low:
                 return ob
         return None
 
     @staticmethod
-    def _price_in_fvg(fvgs: List[FVG], price: float, direction: str) -> Optional[FVG]:
+    def _price_in_fvg(
+        fvgs: List[FVG],
+        candle_low: float,
+        candle_high: float,
+        direction: str,
+    ) -> Optional[FVG]:
+        """True if the candle's range overlaps the FVG zone."""
         for gap in reversed(fvgs):
             if gap.direction != direction or gap.filled:
                 continue
-            if gap.low <= price <= gap.high:
+            if candle_low <= gap.high and candle_high >= gap.low:
                 return gap
         return None

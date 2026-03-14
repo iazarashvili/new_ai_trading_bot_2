@@ -25,10 +25,14 @@ class FairValueGap:
 
     Bullish FVG: candle3.low > candle1.high
     Bearish FVG: candle3.high < candle1.low
+
+    Fix: FVG is only "filled" when price retraces more than *fill_threshold*
+    of the gap (default 50%).  A partial touch does NOT invalidate the gap.
     """
 
-    def __init__(self, max_gaps: int = 30) -> None:
+    def __init__(self, max_gaps: int = 30, fill_threshold: float = 0.5) -> None:
         self._max_gaps = max_gaps
+        self._fill_threshold = fill_threshold
 
     def detect(self, df: pd.DataFrame) -> List[FVG]:
         highs = df["high"].values
@@ -65,19 +69,37 @@ class FairValueGap:
         self._mark_filled(gaps, highs, lows)
         return [g for g in gaps[-self._max_gaps:] if not g.filled]
 
-    @staticmethod
-    def _mark_filled(gaps: List[FVG], highs: np.ndarray, lows: np.ndarray) -> None:
+    def _mark_filled(
+        self, gaps: List[FVG], highs: np.ndarray, lows: np.ndarray,
+    ) -> None:
+        """Mark FVG as filled only when price retraces > fill_threshold of the gap.
+
+        For a bullish FVG (low=c1_high, high=c3_low):
+          filled when a candle's low penetrates deeper than 50% of the gap height.
+        For a bearish FVG (low=c3_high, high=c1_low):
+          filled when a candle's high penetrates deeper than 50% of the gap height.
+        """
+        threshold = self._fill_threshold
         for gap in gaps:
             if gap.filled:
                 continue
             start = gap.index + 2
+            gap_size = gap.high - gap.low
+            if gap_size <= 0:
+                gap.filled = True
+                continue
+
             if gap.direction == "bullish":
+                # Filled when low penetrates below midpoint of gap
+                fill_level = gap.high - gap_size * threshold
                 for k in range(start, len(lows)):
-                    if lows[k] <= gap.low:
+                    if lows[k] <= fill_level:
                         gap.filled = True
                         break
             else:
+                # Filled when high penetrates above midpoint of gap
+                fill_level = gap.low + gap_size * threshold
                 for k in range(start, len(highs)):
-                    if highs[k] >= gap.high:
+                    if highs[k] >= fill_level:
                         gap.filled = True
                         break

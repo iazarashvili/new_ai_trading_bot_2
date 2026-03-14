@@ -17,9 +17,10 @@ class RiskLimits:
     min_sl_spread_mult: float = 2.0
 
 
-# BTCUSDm – კრიპტო, მაღალი ვოლატილობა, სპრედი ~$2–8
+# Forex – დაბალი ვოლატილობა BTC-თან შედარებით, მჭიდრო სპრედი
 SYMBOL_SL_OVERRIDES: Dict[str, Dict[str, float]] = {
-    "BTCUSDm": {"min_sl_pips": 100.0, "min_sl_spread_mult": 4.0},
+    "EURUSDm": {"min_sl_pips": 10.0, "min_sl_spread_mult": 2.0},
+    "GBPUSDm": {"min_sl_pips": 12.0, "min_sl_spread_mult": 2.5},
 }
 
 RISK_LIMITS = RiskLimits()
