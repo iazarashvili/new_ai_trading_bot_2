@@ -25,15 +25,6 @@ DEFAULT_SPECS: Dict[str, SymbolSpec] = {
         contract_size=100_000.0,   # 1 lot = 100,000 units
         digits=5,
     ),
-    "GBPUSDm": SymbolSpec(
-        name="GBPUSDm",
-        pip_value=0.0001,          # 1 pip = 0.0001
-        min_lot=0.01,
-        max_lot=500.0,
-        lot_step=0.01,
-        contract_size=100_000.0,   # 1 lot = 100,000 units
-        digits=5,
-    ),
 }
 
 
