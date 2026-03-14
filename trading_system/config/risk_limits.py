@@ -17,12 +17,9 @@ class RiskLimits:
     min_sl_spread_mult: float = 2.0
 
 
-# EURUSD, GBPUSD – ლიკვიდური მაჯორები, ვიწრო სპრედი (1–2 პიპი)
+# BTCUSDm – კრიპტო, მაღალი ვოლატილობა, სპრედი ~$2–8
 SYMBOL_SL_OVERRIDES: Dict[str, Dict[str, float]] = {
-    "EURUSDm": {"min_sl_pips": 3.0, "min_sl_spread_mult": 1.5},
-    "EURUSDm": {"min_sl_pips": 3.0, "min_sl_spread_mult": 1.5},
-    "GBPUSDm": {"min_sl_pips": 3.0, "min_sl_spread_mult": 1.5},
-    "GBPUSDm": {"min_sl_pips": 3.0, "min_sl_spread_mult": 1.5},
+    "BTCUSDm": {"min_sl_pips": 100.0, "min_sl_spread_mult": 4.0},
 }
 
 RISK_LIMITS = RiskLimits()

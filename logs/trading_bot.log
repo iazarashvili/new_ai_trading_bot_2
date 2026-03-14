@@ -221,3 +221,14 @@
 2026-03-13 16:51:06 | WARNING  | trading_system.monitoring.trade_report | Cannot get account info for daily summary
 2026-03-13 16:51:06 | INFO     | trading_system.connectors.mt5_connector | MT5 disconnected
 2026-03-13 16:51:06 | INFO     | __main__ | Trading Bot stopped
+2026-03-13 18:58:17 | INFO     | __main__ | Initializing Trading Bot
+2026-03-13 18:58:17 | INFO     | __main__ | Starting Trading Bot
+2026-03-13 18:58:20 | INFO     | trading_system.connectors.mt5_connector | Connected – account 262427958, balance 982.45 USD
+2026-03-13 18:58:20 | INFO     | __main__ | Account: balance=982.45 equity=982.45 leverage=2000
+2026-03-13 18:58:20 | INFO     | trading_system.core.scheduler | Scheduler started – interval 5.0s
+2026-03-14 23:28:44 | INFO     | __main__ | Received signal 2 – shutting down
+2026-03-14 23:28:44 | INFO     | __main__ | Shutting down Trading Bot
+2026-03-14 23:28:44 | INFO     | trading_system.core.scheduler | Scheduler stopped
+2026-03-14 23:28:44 | WARNING  | trading_system.monitoring.trade_report | Cannot get account info for daily summary
+2026-03-14 23:28:44 | INFO     | trading_system.connectors.mt5_connector | MT5 disconnected
+2026-03-14 23:28:44 | INFO     | __main__ | Trading Bot stopped

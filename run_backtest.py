@@ -12,13 +12,13 @@ def main():
         return
 
     data = {
-        "M15": connector.get_candles("EURUSDm", "M15", M15_ONE_YEAR),
-        "D1": connector.get_candles("EURUSDm", "D1", D1_ONE_YEAR),
+        "M15": connector.get_candles("BTCUSDm", "M15", M15_ONE_YEAR),
+        "D1": connector.get_candles("BTCUSDm", "D1", D1_ONE_YEAR),
     }
     connector.disconnect()
 
     if data["M15"] is None:
-        print("No data - check symbol name (e.g. EURUSDm)")
+        print("No data - check symbol name (e.g. BTCUSDm)")
         return
 
     print(f"პერიოდი: {data['M15'].index[0]} — {data['M15'].index[-1]}")

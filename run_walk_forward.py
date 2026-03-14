@@ -13,13 +13,13 @@ def main():
         return
 
     data = {
-        "M15": connector.get_candles("GBPUSDm", "M15", M15_COUNT),
-        "D1": connector.get_candles("GBPUSDm", "D1", D1_COUNT),
+        "M15": connector.get_candles("BTCUSDm", "M15", M15_COUNT),
+        "D1": connector.get_candles("BTCUSDm", "D1", D1_COUNT),
     }
     connector.disconnect()
 
     if data["M15"] is None:
-        print("No data - check symbol name (e.g. GBPUSDm)")
+        print("No data - check symbol name (e.g. BTCUSDm)")
         return
 
     print(f"სრული პერიოდი: {data['M15'].index[0]} — {data['M15'].index[-1]}\n")
