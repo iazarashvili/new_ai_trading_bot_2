@@ -163,7 +163,7 @@ class SignalEngine:
         if atr <= 0 or atr < abs(close) * 0.0005:
             return None
         sl = close - atr * 2.0
-        tp = close + atr * 4.0
+        tp = close + atr * 5.5
 
         return Signal(
             symbol=symbol,
@@ -229,7 +229,7 @@ class SignalEngine:
         if atr <= 0 or atr < abs(close) * 0.0005:
             return None
         sl = close + atr * 2.0
-        tp = close - atr * 4.0
+        tp = close - atr * 5.5
 
         return Signal(
             symbol=symbol,
